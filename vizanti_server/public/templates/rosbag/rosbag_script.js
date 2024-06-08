@@ -4,7 +4,7 @@ let persistentModule = await import(`${base_url}/js/modules/persistent.js`);
 let rosbridge = rosbridgeModule.rosbridge;
 let settings = persistentModule.settings;
 
-let path = "~/recording.bag";
+let path = "~/recording";
 let topic_list = new Set();
 
 let active = await getRecordingStatus();

@@ -1,0 +1,8 @@
+# Interface to process waypoints
+std_msgs/Header header                  # Header containing frame_id
+geometry_msgs/PoseStamped[] waypoints   # List of waypoints to process
+bool plan                               # Set to true to plan a valid path thtough waypoints and display it
+bool execute                            # Set to true to allow the robot to execute the plan
+---
+bool success                            # True is the robot is able to plan or execute. False otherwise
+string message                          # Message to pass information upon failure

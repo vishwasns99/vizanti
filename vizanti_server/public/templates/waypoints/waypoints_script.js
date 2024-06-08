@@ -16,43 +16,25 @@ let status = new Status(
 	document.getElementById("{uniqueID}_status")
 );
 
-let fixed_frame = "";
+let fixed_frame = "map"
 let base_link_frame = "";
 let active = false;
 let points = [];
 
 const icon = document.getElementById("{uniqueID}_icon");
-
-const startButton = document.getElementById("{uniqueID}_start");
 const stopButton = document.getElementById("{uniqueID}_stop");
+const listContainer = document.getElementById("waypoints-list-container");
 
-startButton.addEventListener('click', ()=>{
-	console.log("Points:",points.slice(getStartIndex()))
-	if(startCheckbox.checked)
-		sendMessage(points.slice(getStartIndex()))
-	else
-		sendMessage(points)
-});
-
-stopButton.addEventListener('click', ()=>{
+stopButton.addEventListener('click', () => {
 	sendMessage([])
 });
 
 const flipButton = document.getElementById("{uniqueID}_flip");
-const deleteButton = document.getElementById("{uniqueID}_delete");
 
-flipButton.addEventListener('click', ()=>{
+flipButton.addEventListener('click', () => {
 	points.reverse();
 	drawWaypoints();
 	saveSettings();
-});
-
-deleteButton.addEventListener('click', async ()=>{
-	if(await confirm("Are you sure you want to delete all waypoints?")){
-		points = [];
-		drawWaypoints();
-		saveSettings();
-	}
 });
 
 const startCheckbox = document.getElementById('{uniqueID}_startclosest');
@@ -60,8 +42,8 @@ startCheckbox.addEventListener('change', saveSettings);
 
 // Settings
 
-if(settings.hasOwnProperty("{uniqueID}")){
-	const loaded_data  = settings["{uniqueID}"];
+if (settings.hasOwnProperty("{uniqueID}")) {
+	const loaded_data = settings["{uniqueID}"];
 	topic = loaded_data.topic;
 	points = loaded_data.points;
 	fixed_frame = loaded_data.fixed_frame;
@@ -78,7 +60,7 @@ if(topic == ""){
 	saveSettings();
 }
 
-function saveSettings(){
+function saveSettings() {
 	settings["{uniqueID}"] = {
 		topic: topic,
 		fixed_frame: fixed_frame,
@@ -89,9 +71,36 @@ function saveSettings(){
 	settings.save();
 }
 
-// Message sending
+const canvas = document.getElementById('{uniqueID}_canvas');
 
-function getStamp(){
+// Plan Button
+const planButton = document.getElementById('waypoint-manager-plan');
+planButton.addEventListener('click', () => {
+	if (startCheckbox.checked)
+		sendMessage(points.slice(getStartIndex()), true, false);
+	else
+		sendMessage(points, true, false);
+});
+
+// Execute Button
+const executeButton = document.getElementById('waypoint-manager-execute');
+executeButton.addEventListener('click', () => {
+	if (startCheckbox.checked)
+		sendMessage(points.slice(getStartIndex()), true, true);
+	else
+		sendMessage(points, true, true);
+});
+
+// Clear Button
+const clearButton = document.getElementById('waypoint-manager-clear');
+clearButton.addEventListener('click', () => {
+	points = [];
+	drawWaypoints();
+	saveSettings();
+});
+
+// Message sending
+function getStamp() {
 	const currentTime = new Date();
 	const currentTimeSecs = Math.floor(currentTime.getTime() / 1000);
 	const currentTimeNsecs = (currentTime.getTime() % 1000) * 1e6;
@@ -102,13 +111,12 @@ function getStamp(){
 	}
 }
 
-function sendMessage(pointlist){
+function sendMessage(pointlist, plan, execute) {
 	let timeStamp = getStamp();
 	let poseList = [];
 
-	if(pointlist.length > 0)
-	{
-		if(pointlist.length  == 1){
+	if (pointlist.length > 0) {
+		if (pointlist.length == 1) {
 			poseList.push(new ROSLIB.Message({
 				header: {
 					stamp: timeStamp,
@@ -124,17 +132,16 @@ function sendMessage(pointlist){
 				}
 			}));
 		}
-		else
-		{
+		else {
 			pointlist.forEach((point, index) => {
 				let p0;
 				let p1;
 
-				if(index < pointlist.length-1){
+				if (index < pointlist.length - 1) {
 					p0 = point;
-					p1 = pointlist[index+1];
-				}else{
-					p0 = pointlist[index-1];
+					p1 = pointlist[index + 1];
+				} else {
+					p0 = pointlist[index - 1];
 					p1 = point;
 				}
 
@@ -156,34 +163,49 @@ function sendMessage(pointlist){
 		}
 	}
 
-	const publisher = new ROSLIB.Topic({
+	const ProcessWaypointsService = new ROSLIB.Service({
 		ros: rosbridge.ros,
-		name: topic,
-		messageType: 'nav_msgs/msg/Path',
-		latched: true
+		name: "vizanti_navigation_bridge/process_waypoints",
+		serviceType: "vizanti_interfaces/ProcessWaypoints",
 	});
 
-	const pathMessage = new ROSLIB.Message({
+	const request = new ROSLIB.ServiceRequest({
 		header: {
 			stamp: timeStamp,
 			frame_id: fixed_frame
 		},
-		poses: poseList
+		waypoints: poseList,
+		plan: plan,
+		execute: execute
 	});
-	publisher.publish(pathMessage);
 
 	status.setOK();
+	console.log("Calling the service");
+
+	// Make a service call
+	ProcessWaypointsService.callService(request,
+		function (result) {
+			console.log('Result:', result);
+			if (!result.success) {
+				alert(result.message);
+			}
+		},
+		function (error) {
+			console.error('Service call failed:', error);
+			alert(error);
+		}
+	);
 }
 
-const canvas = document.getElementById('{uniqueID}_canvas');
 const ctx = canvas.getContext('2d');
 
 const view_container = document.getElementById("view_container");
 
-function getStartIndex(){
+function getStartIndex() {
 
 	if(base_link_frame == ""){
 		status.setError("Base link frame not selected or the TF data is missing.");
+	if (!tf.transforms["base_link"])
 		return 0;
 	}
 
@@ -194,11 +216,11 @@ function getStartIndex(){
 		new Quaternion()
 	);
 
-    let minDistance = Number.POSITIVE_INFINITY;
-    let minIndex = 0;
+	let minDistance = Number.POSITIVE_INFINITY;
+	let minIndex = 0;
 
-    for (let i = 0; i < points.length; i++) {
-        let distance = 0;
+	for (let i = 0; i < points.length; i++) {
+		let distance = 0;
 
 		distance += Math.pow((link.translation.x - points[i].x), 2);
 		distance += Math.pow((link.translation.y - points[i].y), 2);
@@ -212,11 +234,11 @@ function getStartIndex(){
     return minIndex;
 }
 
-function pointToScreen(point){
+function pointToScreen(point) {
 	let transformed = tf.transformPose(
-		fixed_frame, 
-		tf.fixed_frame, 
-		point, 
+		fixed_frame,
+		tf.fixed_frame,
+		point,
 		new Quaternion()
 	);
 
@@ -226,24 +248,24 @@ function pointToScreen(point){
 	});
 }
 
-function screenToPoint(click){
+function screenToPoint(click) {
 	let transformed = view.screenToFixed(click);
 	return tf.transformPose(
-		tf.fixed_frame, 
-		fixed_frame, 
-		transformed, 
+		tf.fixed_frame,
+		fixed_frame,
+		transformed,
 		new Quaternion()
 	).translation;
 }
 
 function drawWaypoints() {
 
-    const wid = canvas.width;
-    const hei = canvas.height;
+	const wid = canvas.width;
+	const hei = canvas.height;
 
-    ctx.clearRect(0, 0, wid, hei);
+	ctx.clearRect(0, 0, wid, hei);
 	ctx.lineWidth = 3;
-	ctx.strokeStyle = "#EBCE00"; 
+	ctx.strokeStyle = "#EBCE00";
 	ctx.fillStyle = active ? "white" : "#EBCE00";
 
 	const frame = tf.absoluteTransforms[fixed_frame];
@@ -258,57 +280,59 @@ function drawWaypoints() {
 		pointToScreen(point)
 	);
 
-	if(startCheckbox.checked)
+	if (startCheckbox.checked)
 		ctx.strokeStyle = "#4a4a4a";
 	else
 		ctx.strokeStyle = "#EBCE00";
 
-	ctx.beginPath();
+	// ctx.beginPath();
+	// viewPoints.forEach((pos, index) => {
+
+	// 	if(index == startIndex && startCheckbox.checked){
+	// 		ctx.lineTo(pos.x, pos.y);
+	// 		ctx.stroke();
+	// 		ctx.strokeStyle = "#EBCE00"; 
+	// 		ctx.beginPath();
+	// 	}
+
+	// 	if (index === 0) {
+	// 		ctx.moveTo(pos.x, pos.y);
+	// 	} else {
+	// 		ctx.lineTo(pos.x, pos.y);
+	// 	}
+	// });
+	// ctx.stroke();
+
+	listContainer.innerHTML = "";
 	viewPoints.forEach((pos, index) => {
-
-		if(index == startIndex && startCheckbox.checked){
-			ctx.lineTo(pos.x, pos.y);
-			ctx.stroke();
-			ctx.strokeStyle = "#EBCE00"; 
-			ctx.beginPath();
-		}
-
-		if (index === 0) {
-			ctx.moveTo(pos.x, pos.y);
-		} else {
-			ctx.lineTo(pos.x, pos.y);
-		}
-	});
-	ctx.stroke();
-
-	viewPoints.forEach((pos, index) => {		
+		listContainer.innerHTML += `${index+1}. <input type="text" id="point${index}" placeholder="Waypoint ${index+1}" style="width: 80%; border: none; background: none; border-bottom: 1px solid black;"><br>`;
 		ctx.save();
 		ctx.translate(pos.x, pos.y);
 
 		ctx.fillStyle = "#292929";
 		ctx.beginPath();
-		ctx.arc(0, 0, 12, 0, 2 * Math.PI, false);
+		ctx.arc(0, 0, 15, 0, 2 * Math.PI, false);
 		ctx.fill();
 
-		if(index < startIndex && startCheckbox.checked){
+		if (index < startIndex && startCheckbox.checked) {
 			ctx.fillStyle = active ? "white" : "#827c52";
-		}else{
+		} else {
 			ctx.fillStyle = active ? "white" : "#EBCE00";
 		}
 
 		ctx.beginPath();
-		ctx.arc(0, 0, 9, 0, 2 * Math.PI, false);
+		ctx.arc(0, 0, 12, 0, 2 * Math.PI, false);
 		ctx.fill();
 
 		ctx.restore();
 	});
 
-	ctx.font = "bold 13px Monospace";
+	ctx.font = "bold 15px Monospace";
 	ctx.textAlign = "center";
 	ctx.fillStyle = "#212E4A";
 
 	viewPoints.forEach((pos, index) => {
-		ctx.fillText(index, pos.x, pos.y+5);
+		ctx.fillText(index+1, pos.x, pos.y + 5);
 	});
 
 	status.setOK();
@@ -318,7 +342,7 @@ let start_point = undefined;
 let delta = undefined;
 let drag_point = -1;
 
-function findPoint(newpoint){
+function findPoint(newpoint) {
 	let i = -1;
 	points.forEach((point, index) => {
 		const screenpoint = pointToScreen(point);
@@ -326,42 +350,48 @@ function findPoint(newpoint){
 			screenpoint.x - newpoint.x,
 			screenpoint.y - newpoint.y,
 		)
-		if(dist < 15){
+		if (dist < 15) {
 			i = index;
 		}
 	});
 	return i;
 }
 
-function startDrag(event){
+function startDrag(event) {
 	const { clientX, clientY } = event.touches ? event.touches[0] : event;
+	let width = window.innerWidth;
+	let X = (clientX - 0.2 * width) / 0.6;
+	let Y = clientY / 0.6667;
 	start_point = {
-		x: clientX,
-		y: clientY
+		x: X,
+		y: Y
 	};
 
 	drag_point = findPoint(start_point);
-	if(drag_point >= 0){
+	if (drag_point >= 0) {
 		view.setInputMovementEnabled(false);
 	}
 }
 
-function drag(event){
+function drag(event) {
 	const { clientX, clientY } = event.touches ? event.touches[0] : event;
-	if(drag_point >= 0){
+	let width = window.innerWidth;
+	let X = (clientX - 0.2 * width) / 0.6;
+	let Y = clientY / 0.6667;
+	if (drag_point >= 0) {
 		points[drag_point] = screenToPoint({
-			x: clientX,
-			y: clientY
+			x: X,
+			y: Y
 		})
 		drawWaypoints();
 	}
 
-	if (start_point === undefined) 
+	if (start_point === undefined)
 		return;
 
 	delta = {
-		x: start_point.x - clientX,
-		y: start_point.y - clientY,
+		x: start_point.x - X,
+		y: start_point.y - Y,
 	};
 }
 
@@ -381,37 +411,39 @@ function distancePointToLineSegment(px, py, x1, y1, x2, y2) {
 	return Math.sqrt(distanceSquared);
 }
 
-function endDrag(event){
+function endDrag(event) {
 
-	if(drag_point >= 0){
+	if (drag_point >= 0) {
 		view.setInputMovementEnabled(true);
 		drag_point = -1;
 	}
 
 	let moveDist = 0;
 
-	if(delta !== undefined){
-		moveDist = Math.hypot(delta.x,delta.y);
+	if (delta !== undefined) {
+		moveDist = Math.hypot(delta.x, delta.y);
 	}
 
-	if(moveDist < 10){
+	if (moveDist < 10) {
 
 		const { clientX, clientY } = event.touches ? event.touches[0] : event;
+		let width = window.innerWidth;
+		let X = (clientX - 0.2 * width) / 0.6;
+		let Y = clientY / 0.6667;
 		const newpoint = {
-			x: clientX,
-			y: clientY
+			x: X,
+			y: Y
 		};
 
 		let index = findPoint(newpoint);
 
-		if(index >= 0)
+		if (index >= 0)
 			points.splice(index, 1);
-		else
-		{
+		else {
 			let after = -1;
 			for (let i = 0; i < points.length - 1; i++) {
 				const p0 = pointToScreen(points[i]);
-				const p1 = pointToScreen(points[i+1]);
+				const p1 = pointToScreen(points[i + 1]);
 
 				const distance = distancePointToLineSegment(
 					newpoint.x, newpoint.y,
@@ -420,14 +452,14 @@ function endDrag(event){
 				);
 
 				if (distance <= 10) {
-					after = i+1;
+					after = i + 1;
 					break;
 				}
 			}
-		
-			if(after > 0){
+
+			if (after > 0) {
 				points.splice(after, 0, screenToPoint(newpoint));
-			}else{
+			} else {
 				points.push(screenToPoint(newpoint));
 			}
 		}
@@ -440,7 +472,7 @@ function endDrag(event){
 	delta = undefined;
 }
 
-function resizeScreen(){
+function resizeScreen() {
 	canvas.height = window.innerHeight;
 	canvas.width = window.innerWidth;
 	drawWaypoints();
@@ -451,37 +483,38 @@ window.addEventListener('orientationchange', resizeScreen);
 window.addEventListener("tf_changed", drawWaypoints);
 window.addEventListener("view_changed", drawWaypoints);
 
-function addListeners(){
+function addListeners() {
 	view_container.addEventListener('mousedown', startDrag);
 	view_container.addEventListener('mousemove', drag);
 	view_container.addEventListener('mouseup', endDrag);
 
 	view_container.addEventListener('touchstart', startDrag);
 	view_container.addEventListener('touchmove', drag);
-	view_container.addEventListener('touchend', endDrag);	
+	view_container.addEventListener('touchend', endDrag);
 }
 
-function removeListeners(){
+function removeListeners() {
 	view_container.removeEventListener('mousedown', startDrag);
 	view_container.removeEventListener('mousemove', drag);
 	view_container.removeEventListener('mouseup', endDrag);
 
 	view_container.removeEventListener('touchstart', startDrag);
 	view_container.removeEventListener('touchmove', drag);
-	view_container.removeEventListener('touchend', endDrag);	
+	view_container.removeEventListener('touchend', endDrag);
 }
 
-function setActive(value){
+function setActive(value) {
 	active = value;
-
-	if(active){
+	if (active) {
 		addListeners();
 		icon.style.backgroundColor = "rgba(255, 255, 255, 1.0)";
 		view_container.style.cursor = "pointer";
-	}else{
+		drawWaypoints();
+	} else {
 		removeListeners()
 		icon.style.backgroundColor = "rgba(124, 124, 124, 0.3)";
 		view_container.style.cursor = "";
+		drawWaypoints();
 	}
 }
 
@@ -512,17 +545,17 @@ async function loadTopics(){
 
 	let topiclist = "";
 	result.forEach(element => {
-		topiclist += "<option value='"+element+"'>"+element+"</option>"
+		topiclist += "<option value='" + element + "'>" + element + "</option>"
 	});
 	selectionbox.innerHTML = topiclist
 
-	if(topic == "")
+	if (topic == "")
 		topic = selectionbox.value;
-	else{
-		if(result.includes(topic)){
+	else {
+		if (result.includes(topic)) {
 			selectionbox.value = topic;
-		}else{
-			topiclist += "<option value='"+topic+"'>"+topic+"</option>"
+		} else {
+			topiclist += "<option value='" + topic + "'>" + topic + "</option>"
 			selectionbox.innerHTML = topiclist
 			selectionbox.value = topic;
 		}
@@ -531,11 +564,11 @@ async function loadTopics(){
 	//find world frames
 	let framelist = "";
 	for (const key of tf.frame_list.values()) {
-		framelist += "<option value='"+key+"'>"+key+"</option>"
+		framelist += "<option value='" + key + "'>" + key + "</option>"
 	}
 	fixedFrameBox.innerHTML = framelist;
 
-	if(tf.frame_list.has(fixed_frame)){
+	if (tf.frame_list.has(fixed_frame)) {
 		fixedFrameBox.value = fixed_frame;
 	}else{
 		framelist += "<option value='"+fixed_frame+"'>"+fixed_frame+"</option>"
@@ -576,8 +609,8 @@ loadTopics();
 let longPressTimer;
 let isLongPress = false;
 
-icon.addEventListener("click", (event) =>{
-	if(!isLongPress)
+icon.addEventListener("click", (event) => {
+	if (!isLongPress)
 		setActive(!active);
 	else
 		isLongPress = false;

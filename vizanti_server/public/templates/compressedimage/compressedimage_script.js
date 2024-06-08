@@ -8,8 +8,8 @@ let settings = persistentModule.settings;
 let imageToDataURL = utilModule.imageToDataURL;
 let Status = StatusModule.Status;
 
-let img_offset_x = "-999";
-let img_offset_y = "-999";
+let img_offset_x = "28%";
+let img_offset_y = "53%";
 
 const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
 const vwToVh = vw => (vw * window.innerWidth) / window.innerHeight;
@@ -190,10 +190,6 @@ icon.addEventListener("click", ()=> {
 	loadTopics();
 });
 
-loadTopics();
-
-//preview for definining position
-let preview_active = false;
 
 function onStart(event) {
 	preview_active = true;
@@ -248,6 +244,23 @@ function onMove(event) {
 		img_offset_y = clamp(currentY/window.innerHeight * 100, img_height, 100 - img_height);
 
 		saveSettings();
+		
+		// Custom edits
+		// let x = (currentX/window.innerWidth * 100);
+		// if(x<20.0) x = 20.0;
+		// if(x>80.0) x = 80.0;
+		// img_offset_x = x +"%";
+		// let y = (currentY/window.innerHeight * 100);
+		// if(x<10.0) x = 10.0;
+		// if(y > 66.67) y = 66.67;
+		// img_offset_y = y +"%";
+		// saveSettings();
+
+		// imgpreview.style.left = `calc(${img_offset_x} - 50px)`;
+		// imgpreview.style.top = `calc(${img_offset_y} - 50px)`;
+
+		// canvas.style.left = `calc(${((((x-50.0)*100.0)/60.0)+50.0)+"%"})`;
+		// canvas.style.top = `calc(${((y*100.0)/66.67)+"%"})`;
 	}
 }
 
@@ -258,11 +271,14 @@ function onEnd() {
 	document.removeEventListener('mouseup', onEnd);
 	document.removeEventListener('touchend', onEnd);
 }
-  
+
+displayImageOffset(img_offset_x, img_offset_y);
+loadTopics();
+
+//preview for definining position
+let preview_active = false;
+
 imgpreview.addEventListener('mousedown', onStart);
 imgpreview.addEventListener('touchstart', onStart);
 
-displayImageOffset(img_offset_x, img_offset_y);
-
 console.log("Image Widget Loaded {uniqueID}")
-

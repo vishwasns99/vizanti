@@ -1,0 +1,6 @@
+# Interface to set the data to a particular config files
+string file_name      # Name of the config file to get the data from
+---
+string file_data      # Params from file in JSON format
+bool success
+string message

@@ -1,0 +1,4 @@
+# Interface to get the list of available config files
+---
+int32 num_of_files        # Number of files in the list
+string[] file_names     # list of file names

@@ -14,8 +14,8 @@ let status = new Status(
 	document.getElementById("{uniqueID}_status")
 );
 
-let joy_offset_x = "50%";
-let joy_offset_y = "85%";
+let joy_offset_x = "74%";
+let joy_offset_y = "58%";
 let cmdVelPublisher = undefined;
 
 const selectionbox = document.getElementById("{uniqueID}_topic");
@@ -181,12 +181,14 @@ joypreview.style.left = `calc(${joy_offset_x} - 50px)`;
 joypreview.style.top = `calc(${joy_offset_y} - 50px)`;
 
 function makeJoystick(){
+	var x = parseFloat(joy_offset_x, 10);
+	var y = parseFloat(joy_offset_y, 10);
 	return nipplejs.create({
 		zone: joystickContainer,
 		mode: 'static',
 		position: {
-			left: joy_offset_x,
-			top: joy_offset_y 
+			left: ((((x-50.0)*100.0)/60.0)+50.0)+"%",
+			top: ((y*100.0)/66.67)+"%"
 		},
 		size: 150,
 		threshold: 0.1,
@@ -312,8 +314,14 @@ function onMove(event) {
 			currentY = event.clientY;
 		}
 
-		joy_offset_x = (currentX/window.innerWidth * 100) +"%";
-		joy_offset_y = (currentY/window.innerHeight * 100) +"%";
+		let x = (currentX/window.innerWidth * 100);
+		if(x<20.0) x = 20.0;
+		if(x>80.0) x = 80.0;
+		joy_offset_x = x +"%";
+		let y = (currentY/window.innerHeight * 100);
+		if(x<10.0) x = 10.0;
+		if(y > 66.67) y = 66.67;
+		joy_offset_y = y +"%";
 		saveSettings();
 
 		joypreview.style.left = `calc(${joy_offset_x} - 50px)`;

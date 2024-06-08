@@ -1,5 +1,6 @@
 import launch
 import launch_ros.actions
+from ament_index_python.packages import get_package_share_directory
 
 def generate_launch_description():
 
@@ -41,6 +42,8 @@ def generate_launch_description():
         executable='rosapi_node'
     )
 
+    share_directory = get_package_share_directory('vizanti')
+
     flask_node = launch_ros.actions.Node(
         name='vizanti_flask_node',
         package='vizanti_server',
@@ -71,12 +74,28 @@ def generate_launch_description():
         output='screen'
     )
 
+    params_handler_node = launch_ros.actions.Node(
+        name='vizanti_params_handler_node',
+        package='vizanti_navigation_bridge',
+        executable='parameter_interface.py',
+        output='screen'
+    )
+    
+    mode_switch_node = launch_ros.actions.Node(
+        name='mode_switch_node',
+        package='vizanti_navigation_bridge',
+        executable='robot_mode_interface.py',
+        output='screen'
+    )
+
     return launch.LaunchDescription([
         rosbridge_node,
         rosapi_node,
         flask_node,
         tf_handler_node,
-        service_handler_node
+        service_handler_node,
+        params_handler_node,
+        #mode_switch_node
     ])
 
 if __name__ == '__main__':

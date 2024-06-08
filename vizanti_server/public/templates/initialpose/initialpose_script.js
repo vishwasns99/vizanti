@@ -11,10 +11,10 @@ let settings = persistentModule.settings;
 let Status = StatusModule.Status;
 
 let topic = getTopic("{uniqueID}");
-let status = new Status(
-	document.getElementById("{uniqueID}_icon"),
-	document.getElementById("{uniqueID}_status")
-);
+
+if(topic == ""){
+	topic = "/initialpose";
+}
 
 if(settings.hasOwnProperty("{uniqueID}")){
 	const loaded_data  = settings["{uniqueID}"];
@@ -119,19 +119,24 @@ function drawArrow() {
 
 function startDrag(event){
 	const { clientX, clientY } = event.touches ? event.touches[0] : event;
+	let width = window.innerWidth;
+	let X = (clientX - 0.2*width)/0.6;
+	let Y = clientY/0.6667;
 	start_point = {
-		x: clientX,
-		y: clientY
+		x: X,
+		y: Y
 	};
 }
 
 function drag(event){
 	if (start_point === undefined) return;
-
 	const { clientX, clientY } = event.touches ? event.touches[0] : event;
+	let width = window.innerWidth;
+	let X = (clientX - 0.2*width)/0.6;
+	let Y = clientY/0.6667;
 	delta = {
-		x: start_point.x - clientX,
-		y: start_point.y - clientY,
+		x: start_point.x - X,
+		y: start_point.y - Y,
 	};
 
 	drawArrow();	

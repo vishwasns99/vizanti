@@ -5,38 +5,142 @@
 
 <body class="noselect">
 
-	{% include "iconbar.html" %}
-
-	<div id="view_container" class="noselect">
-		<!-- View templates get rendered in here -->
+	<div class="view-item" id="telemetry-view">
+		<h3 class="title">Telemetry / Robot Status</h3>
+		<div class="table-container">
+			<table style="width: 100%; height: auto;">
+				<tr>
+					<th>Battery</th>
+					<th>Mission</th>
+					<th>Sensors</th>
+				</tr>
+				<tr>
+					<td>Percentage<br>80 %</td>
+					<td>
+						Remaining Waypoints <br> 3
+					</td>
+					<td>Lidar<br><span class="status">OK</span></td>
+				</tr>
+				<tr>
+					<td>Voltage<br>21.1 V</td>
+					<td>Remaining Distance<br>25.4m</td>
+					<td>GPS<br><span class="status">OK</span></td>
+				</tr>
+				<tr>
+					<td>Remaining Time<br>2H:31M</td>
+					<td>Remaining Time<br>1H:05M</td>
+					<td>Motor<br><span class="status">OK</span></td>
+				</tr>
+			</table>
+		</div>
 	</div>
 
-	<div id="modal_container" class="noselect">
-		<!-- Modals templates get rendered in here -->
+	<div class="view-item" id="topic-view">
+		<h3 class="title">Topic Messages</h3>
+		<div id="topic-selector" style="display: flex; align-items: center; justify-content: space-around; padding: 3px;">
+			<select id="topic_selector">
+			</select>
+		</div>
+		<div id="topic-container">
+			<ul id="message-list"></ul>
+		</div>
 	</div>
 
-	<script>
-		const base_url = "{{ base_url }}";
-	</script>
-
-	<div id="script_container">
-
+	<div class="view-item" id="log-view">
+		<h3 class="title">Log Messages</h3>
+		<div id="log-selector" style="display: flex; align-items: center; justify-content: space-around; padding: 3px;">
+			<select id="log_node_selector" style="max-width: 70%;">
+			</select>
+			<select id="log_level_selector">
+				<option value=10>DEBUG</option>
+				<option value=20 selected>INFO</option>
+				<option value=30>WARN</option>
+				<option value=40>ERROR</option>
+				<option value=50>FATAL</option>
+			</select>
+		</div>
+		<div id="log-container"></div>
 	</div>
 
-	<!-- global libraries -->
-	<script src="{{ url_for('serve_static', path='js/lib/quaternion.min.js') }}"></script>
+	<div class="view-item" id="main-view">
+    	{% include "iconbar.html" %}
+
+    	<div id="view_container" class="noselect">
+    		<!-- View templates get rendered in here -->
+    	</div>
+
+    	<div id="modal_container" class="noselect">
+    		<!-- Modals templates get rendered in here -->
+    	</div>
+
+    	<script>
+    		const base_url = "{{ base_url }}";
+    	</script>
+
+    	<div id="script_container">
+
+    	</div>
+
+    	<!-- global libraries -->
+    	<script src="{{ url_for('serve_static', path='js/lib/quaternion.min.js') }}"></script>
 	
-	<!-- modules -->
-	<script type="module" src="{{ url_for('serve_static', path='js/modules/rosbridge.js') }}"></script>
-	<script type="module" src="{{ url_for('serve_static', path='js/modules/persistent.js') }}"></script>
-	<script type="module" src="{{ url_for('serve_static', path='js/modules/elements.js') }}"></script>
-	<script type="module" src="{{ url_for('serve_static', path='js/modules/view.js') }}"></script>
-	<script type="module" src="{{ url_for('serve_static', path='js/modules/tf.js') }}"></script>
+    	<!-- modules -->
+    	<script type="module" src="{{ url_for('serve_static', path='js/modules/rosbridge.js') }}"></script>
+    	<script type="module" src="{{ url_for('serve_static', path='js/modules/persistent.js') }}"></script>
+    	<script type="module" src="{{ url_for('serve_static', path='js/modules/elements.js') }}"></script>
+    	<script type="module" src="{{ url_for('serve_static', path='js/modules/view.js') }}"></script>
+    	<script type="module" src="{{ url_for('serve_static', path='js/modules/tf.js') }}"></script>
 
-	<!-- app -->
-	<script src="{{ url_for('serve_static', path='js/setup.js') }}"></script>
-	<script type="module" src="{{ url_for('serve_static', path='js/main.js') }}"></script>
+    	<!-- app -->
+    	<script src="{{ url_for('serve_static', path='js/setup.js') }}"></script>
+    	<script type="module" src="{{ url_for('serve_static', path='js/main.js') }}"></script>
+	</div>
 
+	<div class="view-item" id="camera-view">
+		<h3 class="title">Camera Feed</h3>
+		<div class="camera-container">
+			<div id="camera1">
+				<select id="camera1_selector" style="width: 100%;"></select>
+				<image id="camera1_image" src="assets/tile_loading.png" alt="camera1" />
+			</div>
+			<div id="camera2">
+				<select id="camera2_selector" style="width: 100%;"></select>
+				<image id="camera2_image" src="assets/tile_loading.png" alt="camera2" />
+			</div>
+			<div id="camera3">
+				<select id="camera3_selector" style="width: 100%;"></select>
+				<image id="camera3_image" src="assets/tile_loading.png" alt="camera3" />
+			</div>
+		</div>
+	</div>
+
+	<div class="view-item" id="buttons-view">
+		<h3 class="title">Buttons</h3>
+		<div id="buttons-container">
+			<button id="session-button">Record Session</button>
+			<button>Button 2</button>
+			<button>Button 3</button>
+			<button>Button 4</button>
+			<button>Button 5</button>
+			<button>Button 6</button>
+			<button id="emergency-stop-button"><span style="color: red;">Emergency Stop</span></button>
+		</div>
+	</div>
+
+	<div class="view-item" id="waypoints-view">
+		<h3 class="title">Waypoint Manager</h3>
+		<div id="waypoints-list-container" style="padding: 5px; flex: 1;">
+		</div>
+		<div id="waypoints-button-container"
+			style="display: flex; justify-content: space-around; padding: 10px; flex-wrap: wrap;">
+			<button id="waypoint-manager-plan">Plan</button>
+			<button id="waypoint-manager-execute">Execute</button>
+			<button id="waypoint-manager-clear">Clear</button>
+		</div>
+	</div>
+
+	<script type="module" src="js/dashboard.js"></script>
 
 </body>
+
 </html>

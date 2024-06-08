@@ -18,11 +18,17 @@ let status = new Status(
 
 let listener = undefined;
 let path_topic = undefined;
+let path_frame = undefined;
 
 let pose_array = undefined;
 
 const selectionbox = document.getElementById("{uniqueID}_topic");
 const icon = document.getElementById("{uniqueID}_icon").getElementsByTagName('img')[0];
+
+const colourpicker = document.getElementById("{uniqueID}_colorpicker");
+colourpicker.addEventListener("input", (event) =>{
+	saveSettings();
+});
 
 const canvas = document.getElementById('{uniqueID}_canvas');
 const ctx = canvas.getContext('2d');
@@ -61,10 +67,19 @@ async function drawPath(){
 	}
 
 	ctx.lineWidth = 2;
-	ctx.strokeStyle = colourpicker.value;
+	//ctx.strokeStyle = "#5ED753";
+	ctx.strokeStyle = colourpicker.value
 	ctx.beginPath();
 
 	pose_array.forEach((point, index) => {
+
+		let transformed = tf.transformPose(
+			path_frame,
+			tf.fixed_frame, 
+			point.pose.position, 
+			point.pose.orientation
+		);
+
 		const pos = view.fixedToScreen({
 			x: point.translation.x,
 			y: point.translation.y
@@ -167,6 +182,7 @@ async function loadTopics(){
 selectionbox.addEventListener("change", (event) => {
 	topic = selectionbox.value;
 	pose_array = undefined;
+	path_frame = undefined;
 	connect();
 });
 

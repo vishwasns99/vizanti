@@ -63,13 +63,13 @@
 				</div>
 			</div>
 
-			<div class="widget_entry" onclick="addWidget('nodemgr','')">
+			<!-- <div class="widget_entry" onclick="addWidget('nodemgr','')">
 				<img src="assets/nodemgr.svg" alt="Node Mgr" class="card_icon">
 				<div class="card">
 					<b class="card_title">Node Manager</b>
 					<p class="card_desc">Start and stop nodes</p>
 				</div>
-			</div>
+			</div> -->
 
 			<hr>
 
@@ -77,7 +77,7 @@
 				<img src="assets/joystick.svg" alt="Teleop" class="card_icon">
 				<div class="card">
 					<b class="card_title">Teleop Joystick</b>
-					<p class="card_desc">geometry_msgs/Twist</p>
+					<p class="card_desc">geometry_msgs/msg/Twist</p>
 				</div>
 			</div>
 
@@ -85,7 +85,7 @@
 				<img src="assets/initialpose.svg" alt="Initialpose" class="card_icon">
 				<div class="card">
 					<b class="card_title">2D Pose Estimate</b>
-					<p class="card_desc">Send an initialpose [geometry_msgs/PoseWithCovarianceStamped]</p>
+					<p class="card_desc">Send an initialpose [geometry_msgs/msg/PoseWithCovarianceStamped]</p>
 				</div>
 			</div>
 
@@ -101,34 +101,31 @@
 				<img src="assets/waypoints.svg" alt="Waypoints" class="card_icon">
 				<div class="card">
 					<b class="card_title">Waypoint Mission</b>
-					<p class="card_desc">Send a list of goals [nav_msgs/Path]</p>
+					<p class="card_desc">Send a list of goals [nav_msgs/msg/Path]</p>
 				</div>
 			</div>
 
-			<div class="widget_entry" onclick="addWidget('area','')" data-topic="geometry_msgs/msg/PolygonStamped">
+			<!-- <div class="widget_entry" onclick="addWidget('area','')" data-topic="geometry_msgs/msg/PolygonStamped">
 				<img src="assets/area.svg" alt="Area" class="card_icon">
 				<div class="card">
 					<b class="card_title">Area Mission</b>
-					<p class="card_desc">Send vertices of a box [geometry_msgs/PolygonStamped]</p>
+					<p class="card_desc">Send vertices of a box [geometry_msgs/msg/PolygonStamped]</p>
 				</div>
-			</div>
+			</div> -->
 
 			<div class="widget_entry" onclick="addWidget('button','')" data-topic="std_msgs/msg/Bool,std_msgs/msg/Empty">
 				<img src="assets/button.svg" alt="Button" class="card_icon">
 				<div class="card">
 					<b class="card_title">Button</b>
-					<p class="card_desc">Display and toggle [std_msgs/Bool], or send [std_msgs/Empty]</p>
+					<p class="card_desc">Display and toggle [std_msgs/msg/Bool], or send [std_msgs/msg/Empty]</p>
 				</div>
 			</div>
-
-			<hr>
-
 
 			<div class="widget_entry" onclick="addWidget('map','')" data-topic="nav_msgs/msg/OccupancyGrid">
 				<img src="assets/map.svg" alt="Map" class="card_icon">
 				<div class="card">
 					<b class="card_title">Map</b>
-					<p class="card_desc">nav_msgs/OccupancyGrid</p>
+					<p class="card_desc">nav_msgs/msg/OccupancyGrid</p>
 				</div>
 			</div>
 
@@ -136,7 +133,7 @@
 				<img src="assets/satelite.svg" alt="Satelite" class="card_icon">
 				<div class="card">
 					<b class="card_title">Satelite Tiles</b>
-					<p class="card_desc">sensor_msgs/NavSatFix</p>
+					<p class="card_desc">sensor_msgs/msg/NavSatFix</p>
 				</div>
 			</div>
 
@@ -150,29 +147,29 @@
 
 			<hr>
 
-			<div class="widget_entry" onclick="addWidget('battery','')" data-topic="sensor_msgs/msg/BatteryState">
+			<!-- <div class="widget_entry" onclick="addWidget('battery','')" data-topic="sensor_msgs/msg/BatteryState">
 				<img src="assets/battery_80.svg" alt="Battery" class="card_icon">
 				<div class="card">
 					<b class="card_title">Battery</b>
-					<p class="card_desc">sensor_msgs/BatteryState</p>
+					<p class="card_desc">sensor_msgs/msg/BatteryState</p>
 				</div>
-			</div>
+			</div> -->
 
 			<div class="widget_entry" onclick="addWidget('compressedimage','')" data-topic="sensor_msgs/msg/CompressedImage">
 				<img src="assets/image.svg" alt="CompressedImage" class="card_icon">
 				<div class="card">
 					<b class="card_title">Compressed Image</b>
-					<p class="card_desc">sensor_msgs/CompressedImage</p>
+					<p class="card_desc">sensor_msgs/msg/CompressedImage</p>
 				</div>
 			</div>
 
-			<div class="widget_entry" onclick="addWidget('markerarray','')" data-topic="visualization_msgs/msg/MarkerArray">
+			<!-- <div class="widget_entry" onclick="addWidget('markerarray','')" data-topic="visualization_msgs/msg/MarkerArray">
 				<img src="assets/markerarray.svg" alt="MarkerArray" class="card_icon">
 				<div class="card">
 					<b class="card_title">Marker Array</b>
-					<p class="card_desc">visualization_msgs/MarkerArray</p>
+					<p class="card_desc">visualization_msgs/msg/MarkerArray</p>
 				</div>
-			</div>	
+			</div>	 -->
 
 			<div class="widget_entry" onclick="addWidget('scan','')" data-topic="sensor_msgs/msg/LaserScan">
 				<img src="assets/scan.svg" alt="Scan" class="card_icon">
@@ -194,7 +191,7 @@
 				<img src="assets/path.svg" alt="Path" class="card_icon">
 				<div class="card">
 					<b class="card_title">Path</b>
-					<p class="card_desc">nav_msgs/Path</p>
+					<p class="card_desc">nav_msgs/msg/Path</p>
 				</div>
 			</div>
 
@@ -202,7 +199,7 @@
 				<img src="assets/posewithcovariancestamped.svg" alt="PoseCovStamped" class="card_icon">
 				<div class="card">
 					<b class="card_title">Pose with Covariance (Stamped)</b>
-					<p class="card_desc">geometry_msgs/PoseWithCovarianceStamped</p>
+					<p class="card_desc">geometry_msgs/msg/PoseWithCovarianceStamped</p>
 				</div>
 			</div>
 
@@ -210,15 +207,15 @@
 				<img src="assets/posearray.svg" alt="PoseArray" class="card_icon">
 				<div class="card">
 					<b class="card_title">Pose Array</b>
-					<p class="card_desc">geometry_msgs/PoseArray</p>
+					<p class="card_desc">geometry_msgs/msg/PoseArray</p>
 				</div>
 			</div>
 
-			<div class="widget_entry" onclick="addWidget('range','')" data-topic="sensor_msgs/msg/Range">
+			<!-- <div class="widget_entry" onclick="addWidget('range','')" data-topic="sensor_msgs/msg/Range">
 				<img src="assets/range.svg" alt="Range" class="card_icon">
 				<div class="card">
 					<b class="card_title">Range</b>
-					<p class="card_desc">sensor_msgs/Range</p>
+					<p class="card_desc">sensor_msgs/msg/Range</p>
 				</div>
 			</div>
 
@@ -227,9 +224,9 @@
 				<img src="assets/temp_warm.svg" alt="Temperature" class="card_icon">
 				<div class="card">
 					<b class="card_title">Temperature</b>
-					<p class="card_desc">sensor_msgs/Temperature</p>
+					<p class="card_desc">sensor_msgs/msg/Temperature</p>
 				</div>
-			</div>
+			</div> -->
 
 		</div>
 

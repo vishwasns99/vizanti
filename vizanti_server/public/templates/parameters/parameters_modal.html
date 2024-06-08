@@ -1,0 +1,36 @@
+<div id="{uniqueID}_modal" class="modal_outer noselect">
+	<div class="modal_inner noselect">
+		<h3>Parameter Tuning</h3>
+		<hr>
+		<label for="{uniqueID}_file">File name:</label>
+		<select id="{uniqueID}_file" name="file">
+			<!-- add files here-->
+		</select>
+
+		<hr>
+
+		<div id="{uniqueID}_nodes" class="tab-container">
+			<!-- add node tabs here-->
+
+		</div>
+
+		
+		<div id="{uniqueID}_params" class="tab-container">
+			<!-- add params here-->
+			
+		</div>
+		
+		<hr>
+		
+		<span style="display:flex; align-items: center; justify-content: space-around;">
+		    <button id="{uniqueID}_refresh" style="margin-top: 12px; margin-bottom: 6px;">Refresh</button>
+		    <button id="{uniqueID}_save" style="margin-top: 12px; margin-bottom: 6px;">Save</button>
+		    <div id="{uniqueID}_loader" class="loader"></div>
+		</span>
+		
+		<hr>
+
+		<button id="{uniqueID}_remove" class="delete_button" onclick="removeWidget('{uniqueID}')">Remove Widget</button>
+
+	</div>
+</div>

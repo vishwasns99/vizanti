@@ -100,8 +100,7 @@ sprite.src = "assets/simplegoal.png";
 function drawArrow() {
     const wid = canvas.width;
     const hei = canvas.height;
-
-    ctx.clearRect(0, 0, wid, hei);
+	ctx.clearRect(0, 0, wid, hei);
 
 	if(delta){
 		let ratio = sprite.naturalHeight/sprite.naturalWidth;
@@ -117,19 +116,24 @@ function drawArrow() {
 
 function startDrag(event){
 	const { clientX, clientY } = event.touches ? event.touches[0] : event;
+	let width = window.innerWidth;
+	let X = (clientX - 0.2*width)/0.6;
+	let Y = clientY/0.6667;
 	start_point = {
-		x: clientX,
-		y: clientY
+		x: X,
+		y: Y
 	};
 }
 
 function drag(event){
 	if (start_point === undefined) return;
-
 	const { clientX, clientY } = event.touches ? event.touches[0] : event;
+	let width = window.innerWidth;
+	let X = (clientX - 0.2*width)/0.6;
+	let Y = clientY/0.6667;
 	delta = {
-		x: start_point.x - clientX,
-		y: start_point.y - clientY,
+		x: start_point.x - X,
+		y: start_point.y - Y,
 	};
 
 	drawArrow();	

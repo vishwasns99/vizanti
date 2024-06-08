@@ -9,6 +9,7 @@ find_package(rosidl_default_generators REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(actionlib_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
 
 # List of service files
 set(srv_files
@@ -20,6 +21,11 @@ set(srv_files
     "srv/ManageNode.srv"
     "srv/ListPackages.srv"
     "srv/ListExecutables.srv"
+    "srv/ProcessWaypoints.srv"
+    "srv/GetAvailableMaps.srv"
+    "srv/GetAvailableConfigFiles.srv"
+    "srv/GetConfigData.srv"
+    "srv/SetConfigData.srv"
 )
 
 # Generate messages / actions /  services

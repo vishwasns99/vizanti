@@ -248,6 +248,25 @@ class ServiceHandler(Node):
             res.parameters = json.dumps(parsed[list(parsed.keys())[0]])
         except:
             res.parameters = "{}"
+        
+        return res
+    def get_dynamic_reconfigure_nodes(self, req, res):
+        process = subprocess.Popen(["ros2", "run", "rqt_reconfigure", "rqt_reconfigure"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        flags = fcntl.fcntl(process.stdout, fcntl.F_GETFL)
+        fcntl.fcntl(process.stdout, fcntl.F_SETFL, flags | os.O_NONBLOCK)
+
+        # Wait for it to either fail or not
+        time.sleep(1)
+
+        # Check if the process is still running
+        if process.poll() is not None:
+            # Process terminated, read the error output
+            error_output = process.stdout.read().decode('utf-8')
+            res.success = False
+            res.message = "Failed to get dynamic reconfigure nodes: " + error_output
+        else:
+            res.success = True
+            res.message = "vizanti_flask_node"
         return res
     
     def set_node_parameter(self, req, res):
@@ -262,6 +281,10 @@ class ServiceHandler(Node):
         except:
             res.status = "Error, could not set param."
 
+        res.parameters = node_params
+        print("_______________________________")
+        print(req)
+        print(res)
         return res
 
     def recording_status(self, req, res):
